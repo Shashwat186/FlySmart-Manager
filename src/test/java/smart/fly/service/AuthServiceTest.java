@@ -74,6 +74,17 @@ class AuthServiceTest {
     }
     
     @Test
+    void authenticate_NormalizesEmailBeforeLookup() throws AuthenticationException {
+        when(userRepository.findByEmail(testEmail)).thenReturn(testUser);
+        when(passwordUtil.verifyPassword(testPassword, testHash, testSalt)).thenReturn(true);
+
+        User result = authService.authenticate("  Test@Example.COM ", testPassword);
+
+        assertSame(testUser, result);
+        verify(userRepository).findByEmail(testEmail);
+    }
+
+    @Test
     void authenticate_UserNotFound() {
         when(userRepository.findByEmail(testEmail)).thenReturn(null);
         
