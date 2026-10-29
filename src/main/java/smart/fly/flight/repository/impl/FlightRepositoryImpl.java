@@ -56,7 +56,7 @@ public class FlightRepositoryImpl implements FlightRepository {
 	@Override
 	public Flight findByNumber(String flightNumber) {
 		try {
-			String sql = "SELECT " + "f.flight_Id, f.flight_number, "
+			String sql = "SELECT " + "f.flight_Id, f.flight_number, f.FM_ID, "
 					+ "f.Departure_Date_Time, f.Arrival_Date_Time, f.Status, "
 					+ "a.Airline_ID, a.name AS airline_name, a.code AS airline_code, "
 					+ "dep.Airport_ID AS dep_id, dep.name AS departure_airport_name, dep.code AS departure_code, "
@@ -128,7 +128,7 @@ public class FlightRepositoryImpl implements FlightRepository {
 
 	@Override
 	public int completedFlights() {
-		String sql = "SELECT COUNT(*) FROM flight WHERE Status=\"Delayed\"";
+		String sql = "SELECT COUNT(*) FROM flight WHERE Status=\"Completed\"";
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
@@ -255,7 +255,7 @@ public class FlightRepositoryImpl implements FlightRepository {
 
 	@Override
 	public List<Flight> findAllForCustomers() {
-		String sql = "SELECT " + "f.flight_Id, f.flight_number,"
+		String sql = "SELECT " + "f.flight_Id, f.flight_number, f.FM_ID, "
 				+ "f.Departure_Date_Time, f.Arrival_Date_Time, f.Status, "
 				+ "a.Airline_ID, a.name AS airline_name, a.code AS airline_code, "
 				+ "dep.Airport_ID AS dep_id, dep.name AS departure_airport_name, dep.code AS departure_code, "
