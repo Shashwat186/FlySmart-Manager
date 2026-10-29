@@ -3,6 +3,8 @@ package smart.fly.service;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +14,8 @@ import smart.fly.util.PasswordUtil;
 
 @Service
 public class PasswordResetService {
-    
+    private static final Logger logger = LoggerFactory.getLogger(PasswordResetService.class);
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
     
@@ -24,7 +27,7 @@ public class PasswordResetService {
     public void createResetToken(String email) {
         // Generate token
         String token = UUID.randomUUID().toString();
-        System.out.println("Password reset token generated for " + email + ": " + token);
+        logger.debug("Password reset token generated for {}", email);
         
         // Set expiry to 1 hour from now
         java.sql.Timestamp expiry = new java.sql.Timestamp(
@@ -56,7 +59,7 @@ public class PasswordResetService {
             
             return rowsUpdated > 0;
         } catch (Exception e) {
-            System.err.println("Error updating password: " + e.getMessage());
+            logger.error("Error updating password for {}", email, e);
             return false;
         }
     }

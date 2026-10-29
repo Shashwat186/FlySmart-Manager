@@ -1,5 +1,7 @@
 package smart.fly.feedback.repository.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,7 @@ import javax.sql.DataSource;
 
 @Repository
 public class FeedbackRepositoryImpl implements FeedbackRepository {
+	private static final Logger logger = LoggerFactory.getLogger(FeedbackRepositoryImpl.class);
 
 	private final JdbcTemplate jdbcTemplate;
 	private final DataSource dataSource;
@@ -115,7 +118,7 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 				feedbackList.add(feedback);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error fetching feedback data", e);
 			throw new RuntimeException("Error fetching feedback data: " + e.getMessage());
 		}
 
@@ -136,7 +139,7 @@ public class FeedbackRepositoryImpl implements FeedbackRepository {
 				throw new RuntimeException("Feedback not found with id: " + feedbackId);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("Error updating feedback status for id {}", feedbackId, e);
 			throw new RuntimeException("Error updating feedback status: " + e.getMessage());
 		}
 	}

@@ -1,5 +1,7 @@
 package smart.fly.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +38,7 @@ import java.util.List;
 
 @Service
 public class FlightManagementService {
+	private static final Logger logger = LoggerFactory.getLogger(FlightManagementService.class);
 	private final FlightRepository flightRepository;
 	private final FlightManagerRepository flightManagerRepository;
 	private final ApplicationEventPublisher eventPublisher;
@@ -265,7 +268,7 @@ public class FlightManagementService {
 				return ps;
 			}, keyHolder);
 
-			System.out.println("Flight insert result: " + flightInsertResult);
+			logger.debug("Flight insert result: {}", flightInsertResult);
 
 			Number generatedFlightId = keyHolder.getKey();
 			if (generatedFlightId == null) {
@@ -275,7 +278,7 @@ public class FlightManagementService {
 			int flightId = generatedFlightId.intValue();
 			flight.setFlightId(flightId);
 
-			System.out.println("Flight ID generated: " + flightId);
+			logger.debug("Flight ID generated: {}", flightId);
 
 			// Try both capitalized and lowercase table names
 			String tableName = "flight_seats"; // Try "Flight_Seats" if this doesn't work
@@ -285,7 +288,7 @@ public class FlightManagementService {
 					"INSERT INTO " + tableName
 							+ " (Flight_ID, Seat_Class_ID, Available_Seats, Total_Seats, price) VALUES (?, ?, ?, ?, ?)",
 					flightId, 1, economyTotalSeats, economyTotalSeats, 0.0);
-			System.out.println("Economy seats insert result: " + economyInsertResult);
+			logger.debug("Economy seats insert result: {}", economyInsertResult);
 			if (economyInsertResult <= 0) {
 				throw new RuntimeException("Failed to insert Economy class seats");
 			}
@@ -295,7 +298,7 @@ public class FlightManagementService {
 					"INSERT INTO " + tableName
 							+ " (Flight_ID, Seat_Class_ID, Available_Seats, Total_Seats, price) VALUES (?, ?, ?, ?, ?)",
 					flightId, 2, businessTotalSeats, businessTotalSeats, 0.0);
-			System.out.println("Business seats insert result: " + businessInsertResult);
+			logger.debug("Business seats insert result: {}", businessInsertResult);
 			if (businessInsertResult <= 0) {
 				throw new RuntimeException("Failed to insert Business class seats");
 			}
@@ -305,14 +308,13 @@ public class FlightManagementService {
 					"INSERT INTO " + tableName
 							+ " (Flight_ID, Seat_Class_ID, Available_Seats, Total_Seats, price) VALUES (?, ?, ?, ?, ?)",
 					flightId, 3, firstClassTotalSeats, firstClassTotalSeats, 0.0);
-			System.out.println("First Class seats insert result: " + firstClassInsertResult);
+			logger.debug("First Class seats insert result: {}", firstClassInsertResult);
 			if (firstClassInsertResult <= 0) {
 				throw new RuntimeException("Failed to insert First Class seats");
 			}
 
 		} catch (Exception e) {
-			System.err.println("ERROR in addFlightWithSeats: " + e.getMessage());
-			e.printStackTrace();
+			logger.error("Error in addFlightWithSeats", e);
 			throw e; 
 		}
 	}

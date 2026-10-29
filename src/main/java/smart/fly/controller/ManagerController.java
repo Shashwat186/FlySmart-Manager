@@ -1,5 +1,7 @@
 package smart.fly.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/manager")
 public class ManagerController {
+	private static final Logger logger = LoggerFactory.getLogger(ManagerController.class);
 	private final FlightManagementService flightService;
 
 	private final FlightManagerRepository flightManagerRepository;
@@ -55,14 +58,14 @@ public class ManagerController {
 		User user = (User) session.getAttribute("user");
 
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /manager/dashboard!");
+			logger.warn("No user in session for /manager/dashboard, redirecting to login");
 
 			return "redirect:/auth/login";
 		}
 		int userId = user.getUserId();
-		System.out.println("Dashboard - User ID from session: " + userId); // DEBUG
+		logger.debug("Dashboard - User ID from session: {}", userId);
 		List<ActionLog> actionLog = loggingService.getActionLogForOwner(userId);
-		System.out.println("Action log from database: " + actionLog);
+		logger.debug("Action log from database: {}", actionLog);
 		model.addAttribute("actionLog", actionLog);
 		int totalFlights = flightRepository.getTotalFlightsByUserId(userId);
 		model.addAttribute("totalFlights", totalFlights);
@@ -162,12 +165,12 @@ public class ManagerController {
 		model.addAttribute("managers", flightManagerRepository.findAll());
 		model.addAttribute("statuses", Arrays.asList("Scheduled", "Delayed", "Cancelled", "Completed"));
 		model.addAttribute("managerId", flight.getFlightManager() != null ? flight.getFlightManager().getFmId() : null);
-		System.out.println("Flight ID: " + flight.getFlightId());
-		System.out.println("Manager ID: " + flight.getFmId()); // Should print non-zero if exists
-		System.out.println("Manager Object: " + flight.getFlightManager());
+		logger.debug("Flight ID: {}", flight.getFlightId());
+		logger.debug("Manager ID: {}", flight.getFmId());
+		logger.debug("Manager Object: {}", flight.getFlightManager());
 		User currentUser = (User) session.getAttribute("user");
 		int UserId = currentUser.getUserId();
-		System.out.println(UserId);
+		logger.debug("User ID: {}", UserId);
 		return "manager/flights/edit";
 	}
 
@@ -180,7 +183,7 @@ public class ManagerController {
 
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
-			System.out.println("ERROR: User is NULL in /manager/flights/edit/{id}!");
+			logger.warn("No user in session for /manager/flights/edit/{}, redirecting to login", id);
 			return "redirect:/auth/login";
 		}
 		int userId = user.getUserId();
